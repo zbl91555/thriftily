@@ -1,9 +1,11 @@
 const thrift = require('thrift')
 const EventEmitter = require('events')
 class Thriftily extends EventEmitter {
-  constructor (alias, clientConfig, logger) {
+  constructor (alias, { useHTTPConnection, ...clientConfig }, logger) {
     super()
     this.config = clientConfig
+    this.thriftCreateConnection = useHTTPConnection ? thrift.createHttpConnection.bind(thrift) : thrift.createConnection.bind(thrift)
+    this.thriftCreateClient = useHTTPConnection ? thrift.createHttpClient.bind(thrift) : thrift.createClient.bind(thrift)
   }
 
   start () {
@@ -20,12 +22,12 @@ class Thriftily extends EventEmitter {
     const {
       host,
       port,
-      transport = thrift.TFramedTransport,
+      transport = thrift.TBufferedTransport,
       protocol = thrift.TBinaryProtocol,
       ...otherOptions
     } = this.config
 
-    const connection = thrift.createConnection(host, port, {
+    const connection = this.thriftCreateConnection(host, port, {
       transport,
       protocol,
       ...otherOptions
@@ -42,7 +44,7 @@ class Thriftily extends EventEmitter {
   }
 
   createClient () {
-    const client = thrift.createClient(this.config.client, this.connection)
+    const client = this.thriftCreateClient(this.config.client, this.connection)
     this.client = client
     return client
   }

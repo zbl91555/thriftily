@@ -20,7 +20,7 @@ class ThriftilyManager {
     const thriftily = new Thriftily(alias, thriftilyConfig)
     this.thriftilyMap.set(alias, thriftily)
 
-    const genTag = () => `[Thriftily ${alias}]`
+    const genTag = () => `[thrift ${alias}]`
 
     let pingTimeout = null
     const ping = thriftilyConfig.ping
@@ -67,7 +67,7 @@ class ThriftilyManager {
       thriftily.close()
     })
     thriftily.on('timeout', e => {
-      this.logger.error(`${genTag()} Thrift client connection timeout.`)
+      this.logger.error(`${genTag()} Thrift client connection timeout.`, e)
       thriftily.close()
     })
     thriftily.on('close', e => {
